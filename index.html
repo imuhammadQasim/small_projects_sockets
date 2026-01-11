@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Socket.IO Rooms</title>
+    <style>
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .box {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        background-color: red;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding-bottom: 3rem;
+      }
+      #form {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        padding: 0.5rem;
+        background: #eee;
+      }
+      #input {
+        flex: 1;
+        padding: 0.5rem;
+      }
+      #messages li {
+        padding: 0.5rem;
+        list-style: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container"><div class="box"></div></div>
+    <h3>Room: <span id="room-name"></span></h3>
+    <ul id="messages"></ul>
+
+    <form id="form">
+      <input id="input" autocomplete="off" />
+      <button>Send</button>
+      <button id="toggle-btn">Disconnect</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const toggleButton = document.getElementById("toggle-btn");
+
+      toggleButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (socket.connected) {
+          toggleButton.innerText = "Connect";
+          socket.disconnect();
+        } else {
+          toggleButton.innerText = "Disconnect";
+          socket.connect();
+        }
+      });
+      // 🔑 ROOM NAME (hardcoded for learning)
+      const room = "room-1";
+      document.getElementById("room-name").textContent = room;
+
+      //   socket.emit("join-room", room);
+      socket.emit("join-room", room);
+
+      const messages = document.getElementById("messages");
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+      const box = document.querySelector(".box");
+      socket.on("connect", () => {
+        box.style.backgroundColor = "green";
+        console.log("Connected: ", socket.connected);
+      });
+      socket.on("disconnect", () => {
+        box.style.backgroundColor = "red";
+        console.log("Connected: ", socket.connected);
+      });
+
+      socket.on("room-message", (msg) => {
+        console.log(msg);
+        const li = document.createElement("li");
+        li.textContent = msg;
+        messages.appendChild(li);
+      });
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit("room-message", {
+            room,
+            message: input.value,
+          });
+          input.value = "";
+        }
+      });
+    </script>
+  </body>
+</html>
