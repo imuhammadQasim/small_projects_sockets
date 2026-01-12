@@ -43,7 +43,7 @@
     <div class="container"><div class="box"></div></div>
     <h3>Room: <span id="room-name"></span></h3>
     <ul id="messages"></ul>
-
+    <button>Counter <span class="count">0</span></button>
     <form id="form">
       <input id="input" autocomplete="off" />
       <button>Send</button>
@@ -76,6 +76,7 @@
       const form = document.getElementById("form");
       const input = document.getElementById("input");
       const box = document.querySelector(".box");
+      const counter = document.querySelector(".count");
       socket.on("connect", () => {
         box.style.backgroundColor = "green";
         console.log("Connected: ", socket.connected);
@@ -85,6 +86,11 @@
         console.log("Connected: ", socket.connected);
       });
 
+      let count = 0;
+      counter.addEventListener(onclick, (e) => {
+        e.target.value += 1;
+        console.log("click");
+      });
       socket.on("room-message", (msg) => {
         console.log(msg);
         const li = document.createElement("li");
